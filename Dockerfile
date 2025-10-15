@@ -10,8 +10,8 @@ COPY package*.json ./
 # Install dependencies
 RUN npm ci --no-cache
 
-# Install vite globally to avoid permission issues
-RUN npm install -g vite
+# Install vite globally and serve for static file serving
+RUN npm install -g vite serve
 
 # Copy source code
 COPY . .
@@ -22,5 +22,5 @@ RUN vite build
 # Expose port (Railway will set this)
 EXPOSE 3000
 
-# Start the application using global vite with proper port binding
-CMD vite preview --host 0.0.0.0 --port $PORT
+# Start using serve which is more reliable for production
+CMD serve -s dist -l $PORT

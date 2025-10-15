@@ -2,7 +2,6 @@
 builder = "DOCKERFILE"
 
 [deploy]
-startCommand = "npx vite preview --host --port $PORT"
 healthcheckPath = "/"
 healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"

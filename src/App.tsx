@@ -10,6 +10,7 @@ import DocumentsPage from "./pages/DocumentsPage";
 import BenefitsCatalog from "./pages/BenefitsCatalog";
 import ContactPage from "./pages/ContactPage";
 import EmailSettings from "./components/EmailSettings";
+import AdminDashboard from "./pages/AdminDashboard";
 
 const TaxApp = () => {
   const { user, logout } = useAuth();
@@ -78,6 +79,11 @@ const TaxApp = () => {
     setCurrentPage('about');
   };
 
+  const navigateToAdmin = () => {
+    window.location.hash = 'admin';
+    setCurrentPage('admin');
+  };
+
   const navigateToContact = () => {
     window.location.hash = 'contact';
     setCurrentPage('contact');
@@ -121,6 +127,10 @@ const TaxApp = () => {
     return <AboutPage />;
   }
 
+  if (currentPage === 'admin') {
+    return <AdminDashboard />;
+  }
+
   if (currentPage === 'contact') {
     return <ContactPage />;
   }
@@ -162,6 +172,13 @@ const TaxApp = () => {
               onClick={navigateToContact}
             >
               Support
+            </button>
+            
+            <button 
+              className="px-3 py-2 text-emerald-600 border-2 border-emerald-600 rounded-lg text-sm font-medium hover:bg-emerald-600 hover:text-white transition-all duration-300 ml-2"
+              onClick={navigateToAdmin}
+            >
+              🏛️ Admin
             </button>
             
             {user ? (
@@ -244,6 +261,13 @@ const TaxApp = () => {
                 onClick={() => { navigateToContact(); setShowMobileMenu(false); }}
               >
                 Support
+              </button>
+              
+              <button 
+                className="block w-full text-left px-4 py-2 text-emerald-600 hover:bg-emerald-50 rounded-lg"
+                onClick={() => { navigateToAdmin(); setShowMobileMenu(false); }}
+              >
+                🏛️ Admin Dashboard
               </button>
               
               {user ? (

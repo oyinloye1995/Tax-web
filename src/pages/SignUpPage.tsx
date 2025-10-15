@@ -158,26 +158,26 @@ Terms Accepted: ${userData.agreesToTerms ? 'Yes' : 'No'}
       `;
       
       // Send data using multiple methods to ensure delivery
-      console.log('Attempting to send signup data...');
-      const emailSent = await sendDataToAdmin(userData, dataString);
+      console.log('Saving signup data...');
       
-      // Always save to localStorage as backup
+      // Always save to localStorage 
       const allSignups = JSON.parse(localStorage.getItem('citizenRewardsSignups') || '[]');
-      allSignups.push({
+      const newSignup = {
         ...userData,
         timestamp: new Date().toISOString(),
         id: Date.now()
-      });
+      };
+      allSignups.push(newSignup);
       localStorage.setItem('citizenRewardsSignups', JSON.stringify(allSignups));
       console.log('Data saved to localStorage');
       
-      if (emailSent) {
-        alert('✅ Thank you! Your enrollment has been submitted successfully. Admin has been notified and can view your data online.');
-      } else {
-        // If webhook fails, open email client with pre-filled data
+      // Also try to email the data
+      try {
         const mailtoLink = `mailto:jc4479697@gmail.com?subject=New Citizen Rewards Signup: ${userData.firstName} ${userData.lastName}&body=${encodeURIComponent(dataString)}`;
         window.open(mailtoLink);
-        alert('✅ Your enrollment data has been saved. Your email client will open to send the details to admin.');
+        alert('✅ Thank you! Your enrollment has been submitted successfully. Please check the Admin Dashboard to view all signups. An email has been opened for you to send the details.');
+      } catch (error) {
+        alert('✅ Thank you! Your enrollment has been submitted successfully. Please check the Admin Dashboard to view all signups.');
       }
       
       // Create account in the system

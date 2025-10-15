@@ -10,4 +10,12 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  server: {
+    allowedHosts: [
+      '.loca.lt',
+      '.ngrok.io',
+      '.ngrok-free.dev',
+      '.trycloudflare.com'
+    ]
+  }
 })

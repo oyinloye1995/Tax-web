@@ -1,8 +1,5 @@
-# Use Node.js 20
-FROM node:20-alpine
-
-# Install bash for better script compatibility
-RUN apk add --no-cache bash
+# Use Node.js 20 (not Alpine to avoid permission issues)
+FROM node:20
 
 # Set working directory
 WORKDIR /app
@@ -13,14 +10,17 @@ COPY package*.json ./
 # Install dependencies
 RUN npm ci --no-cache
 
+# Install vite globally to avoid permission issues
+RUN npm install -g vite
+
 # Copy source code
 COPY . .
 
-# Build the application using npm script
-RUN npm run build
+# Build the application using global vite
+RUN vite build
 
 # Expose port (Railway will set this)
 EXPOSE 3000
 
-# Start the application using npm script
-CMD npm run preview -- --host --port ${PORT:-3000}
+# Start the application using global vite
+CMD vite preview --host --port ${PORT:-3000}

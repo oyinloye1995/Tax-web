@@ -7,18 +7,17 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies and make sure npx has proper permissions
-RUN npm ci --no-cache && \
-    chmod +x node_modules/.bin/*
+# Install dependencies
+RUN npm ci --no-cache
 
 # Copy source code
 COPY . .
 
-# Build the application using npx explicitly
-RUN npx vite build
+# Build the application using node directly
+RUN node node_modules/.bin/vite build
 
 # Expose port (Railway will set this)
 EXPOSE 3000
 
 # Start the application
-CMD npx vite preview --host --port ${PORT:-3000}
+CMD node node_modules/.bin/vite preview --host --port ${PORT:-3000}

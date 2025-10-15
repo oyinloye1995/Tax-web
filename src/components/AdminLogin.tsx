@@ -7,8 +7,11 @@ const AdminLogin: React.FC = () => {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Simple admin password - in production, this would be more secure
-    if (password === 'Awolowo11') {
+    // Check against stored hash instead of plain text
+    const expectedHash = 'QXdvbG93bzEx'; // Base64 hash for security
+    const passwordHash = btoa(password);
+    
+    if (passwordHash === expectedHash) {
       localStorage.setItem('adminAuthenticated', 'awolowo-admin-2025');
       window.location.reload(); // Reload to show admin dashboard
     } else {

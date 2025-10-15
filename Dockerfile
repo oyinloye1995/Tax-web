@@ -22,5 +22,5 @@ RUN vite build
 # Expose port (Railway will set this)
 EXPOSE 3000
 
-# Start the application using global vite
-CMD vite preview --host --port ${PORT:-3000}
+# Start the application using global vite with proper port binding
+CMD vite preview --host 0.0.0.0 --port $PORT

@@ -1,6 +1,9 @@
 [build]
 builder = "NIXPACKS"
-buildCommand = "npm ci && npm run build"
+buildCommand = "npm ci --no-cache && npm run build"
+
+[build.nixpacksConfig]
+nodeVersion = "20"
 
 [deploy]
 startCommand = "npx vite preview --host --port $PORT"

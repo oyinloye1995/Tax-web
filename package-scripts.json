@@ -1,0 +1,11 @@
+{
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "build:dev": "vite build --mode development",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "start-public": "concurrently \"npm run dev -- --host\" \"lt --port 5173 --subdomain citizenrewards-portal\"",
+    "start-portal": "npm run dev -- --host"
+  }
+}

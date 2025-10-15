@@ -11,6 +11,7 @@ import BenefitsCatalog from "./pages/BenefitsCatalog";
 import ContactPage from "./pages/ContactPage";
 import EmailSettings from "./components/EmailSettings";
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminLogin from "./components/AdminLogin";
 
 const TaxApp = () => {
   const { user, logout } = useAuth();
@@ -128,6 +129,11 @@ const TaxApp = () => {
   }
 
   if (currentPage === 'admin') {
+    // Admin authentication check
+    const adminPassword = localStorage.getItem('adminAuthenticated');
+    if (adminPassword !== 'citizen-admin-2025') {
+      return <AdminLogin />;
+    }
     return <AdminDashboard />;
   }
 

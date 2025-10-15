@@ -97,11 +97,25 @@ Submitted: ${new Date(signup.timestamp).toLocaleString()}
     });
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('adminAuthenticated');
+    window.location.hash = '';
+    window.location.reload();
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-emerald-50 p-6">
       <div className="max-w-7xl mx-auto">
         <div className="bg-white rounded-xl shadow-lg p-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-6">🏛️ Citizen Rewards Admin Dashboard</h1>
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-3xl font-bold text-gray-900">🏛️ Citizen Rewards Admin Dashboard</h1>
+            <button
+              onClick={handleLogout}
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
+            >
+              🚪 Logout
+            </button>
+          </div>
           
           {signups.length === 0 ? (
             <div className="text-center py-12">

@@ -7,14 +7,15 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --no-cache
+# Install dependencies and make sure npx has proper permissions
+RUN npm ci --no-cache && \
+    chmod +x node_modules/.bin/*
 
 # Copy source code
 COPY . .
 
-# Build the application
-RUN npm run build
+# Build the application using npx explicitly
+RUN npx vite build
 
 # Expose port (Railway will set this)
 EXPOSE 3000

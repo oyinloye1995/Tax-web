@@ -8,8 +8,8 @@ const AdminLogin: React.FC = () => {
     e.preventDefault();
     
     // Simple admin password - in production, this would be more secure
-    if (password === 'admin123secure') {
-      localStorage.setItem('adminAuthenticated', 'citizen-admin-2025');
+    if (password === 'Awolowo11') {
+      localStorage.setItem('adminAuthenticated', 'awolowo-admin-2025');
       window.location.reload(); // Reload to show admin dashboard
     } else {
       setError('Invalid admin password');

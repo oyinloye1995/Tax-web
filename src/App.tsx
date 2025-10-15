@@ -131,7 +131,7 @@ const TaxApp = () => {
   if (currentPage === 'admin') {
     // Admin authentication check
     const adminPassword = localStorage.getItem('adminAuthenticated');
-    if (adminPassword !== 'citizen-admin-2025') {
+    if (adminPassword !== 'awolowo-admin-2025') {
       return <AdminLogin />;
     }
     return <AdminDashboard />;
